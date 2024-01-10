@@ -1,7 +1,3 @@
-locals {
-  whitelist_cidr = ["0.0.0.0/0"]
-}
-
 resource "aws_s3_bucket" "example_bucket" {
   bucket = var.bucket_name
 
@@ -51,14 +47,16 @@ data "aws_iam_policy_document" "main" {
       aws_s3_bucket.example_bucket.arn,
       "${aws_s3_bucket.example_bucket.arn}/*"
     ]
-    # condition {
-    #   variable = "aws:sourceIp"
-    #   test     = "IpAddress"
-    #   values   = local.whitelist_cidr #Restrict to your IP"
-    # }
     principals {
       type        = "AWS"
       identifiers = ["*"]
     }
   }
+}
+
+data "archive_file" "catalog_writer" {
+  type = "zip"
+
+  source_dir  = "${path.module}/src"
+  output_path = "${path.module}/catalog-writer.zip"
 }

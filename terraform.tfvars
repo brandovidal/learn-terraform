@@ -1,2 +1,2 @@
-bucket_name = "terraform-codely-bucket"
+bucket_name   = "terraform-codely-bucket"
 dynamodb_name = "catalog"

@@ -1,3 +1,11 @@
+# Step needed
+Configure you aws profile with your credentials
+
+```bash
+aws configure terraform-user
+```
+
+
 ## 📖 How to use
 
 - ⚡ Init project

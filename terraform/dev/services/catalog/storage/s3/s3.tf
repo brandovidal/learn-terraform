@@ -54,22 +54,23 @@ data "aws_iam_policy_document" "main" {
   }
 }
 
+// get arn from lambda tfstate
+data "terraform_remote_state" "remote_lambda" {
+  backend = "s3"
+  config = {
+    bucket = "codely-tf-states"
+    key    = "dev/services/catalog/compute/lambda/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
+// S3 notification to lambda
 resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = aws_s3_bucket.example_bucket.id
 
   lambda_function {
-    lambda_function_arn = aws_lambda_function.catalog-writer.arn
+    lambda_function_arn = data.terraform_remote_state.remote_lambda.outputs.lambda_arn
     events              = ["s3:ObjectCreated:*"]
     filter_suffix       = ".png"
   }
-
-  depends_on = [aws_lambda_permission.allow_bucket]
-}
-
-
-data "archive_file" "catalog_writer" {
-  type = "zip"
-
-  source_dir  = "${path.module}/src"
-  output_path = "${path.module}/catalog-writer.zip"
 }

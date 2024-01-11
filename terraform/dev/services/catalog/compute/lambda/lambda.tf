@@ -11,6 +11,11 @@ resource "aws_lambda_function" "catalog-writer" {
   runtime = "python3.9"
 }
 
+// get dynamodb ARN from name
+data "aws_dynamodb_table" "tableName" {
+  name = var.dynamodb_name
+}
+
 // dynamodb table Write Policy
 data "aws_iam_policy_document" "inline_policy" {
   statement {
@@ -27,12 +32,13 @@ data "aws_iam_policy_document" "inline_policy" {
       "dynamodb:UpdateTable",
     ]
 
-    resources = [aws_dynamodb_table.apps_storage.arn]
+    resources = [data.aws_dynamodb_table.tableName.arn]
 
     effect = "Allow"
   }
 }
 
+// IAM role used by lambda function
 resource "aws_iam_role" "iam_for_lambda" {
   name = "lambda-role"
 
@@ -57,10 +63,16 @@ resource "aws_iam_role" "iam_for_lambda" {
 EOF
 }
 
+// Lambda permissions invoke function from S3
 resource "aws_lambda_permission" "allow_bucket" {
   statement_id  = "AllowExecutionFromS3Bucket"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.catalog-writer.arn
   principal     = "s3.amazonaws.com"
-  source_arn    = aws_s3_bucket.example_bucket.arn
+  source_arn    = "arn:aws:s3:::${var.bucket_name}"
+}
+
+// tfstate output
+output "lambda_arn" {
+  value = aws_lambda_function.catalog-writer.arn
 }

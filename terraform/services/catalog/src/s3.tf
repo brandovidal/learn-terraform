@@ -1,3 +1,7 @@
+locals {
+  s3_bootstrap_filepath = "../app"
+}
+
 resource "aws_s3_bucket" "example_bucket" {
   bucket = var.bucket_name
 
@@ -7,12 +11,17 @@ resource "aws_s3_bucket" "example_bucket" {
   }
 }
 
+data "archive_file" "app" {
+  type        = "zip"
+  source_dir  = "app"
+  output_path = "build.zip"
+}
+
 resource "aws_s3_object" "object" {
   bucket = aws_s3_bucket.example_bucket.id
-  key    = "hello-world"
-  source = "hello-world.html"
-
-  content_type = "text/html"
+  key    = "build.zip"
+  source = data.archive_file.app.output_path
+  etag = filemd5(data.archive_file.app.output_path)
 }
 
 resource "aws_s3_bucket_public_access_block" "example" {

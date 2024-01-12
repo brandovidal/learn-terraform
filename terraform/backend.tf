@@ -3,7 +3,7 @@ terraform {
   backend "s3" {
     bucket  = "terraform-codely-tf-states"
     encrypt = true
-    key     = "services/catalog/environments/dev/terraform.tfstate"
+    key     = "./terraform.tfstate"
     region  = "us-east-1"
   }
 }

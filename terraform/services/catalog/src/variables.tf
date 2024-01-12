@@ -1,7 +1,4 @@
-variable "bucket_name" {
-  type = string
-}
-
+variable "bucket_name"{}
 variable "env"{}
-# variable "read_capacity"{}
+# variable "write_capacity"{}
 # variable "write_capacity"{}

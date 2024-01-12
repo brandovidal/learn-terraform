@@ -7,6 +7,7 @@ terraform {
 }
 
 inputs = {
+    bucket_name  = "terraform-codely-bucket-dev"
     read_capacity  = 1
     write_capacity = 1
 }

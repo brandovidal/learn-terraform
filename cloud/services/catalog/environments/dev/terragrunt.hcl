@@ -8,5 +8,5 @@ terraform {
 
 inputs = {
   bucket_name    = "terraform-codely-bucket-dev"
-  handler_dir    = "${path_relative_from_include()}/../app"
+  handler_dir    = "${path_relative_from_include()}/../../../../app"
 }

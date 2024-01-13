@@ -7,4 +7,5 @@ terraform.tfstate.backup
 
 .terragrunt
 
-backend.tf
+.terragrunt-cache
+*backend.tf

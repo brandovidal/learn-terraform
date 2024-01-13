@@ -1,10 +1,5 @@
-resource "random_pet" "lambda_bucket_name" {
-  prefix = "lambda"
-  length = 2
-}
-
 resource "aws_s3_bucket" "lambda_bucket" {
-  bucket        = random_pet.lambda_bucket_name.id
+  bucket        = var.bucket_name
   force_destroy = true
 }
 
@@ -17,6 +12,21 @@ resource "aws_s3_bucket_public_access_block" "lambda_bucket" {
   restrict_public_buckets = true
 }
 
+# use path.module
+data "archive_file" "handler" {
+  type        = "zip"
+  source_dir  = var.handler_dir
+  output_path = "handler.zip"
+}
+
+resource "aws_s3_object" "handler" {
+  bucket = aws_s3_bucket.lambda_bucket.id
+  key    = "${var.env}/handler.zip"
+  source = data.archive_file.handler.output_path
+  etag   = filemd5(data.archive_file.handler.output_path)
+}
+
+#  AWS Lambda
 resource "aws_iam_role" "handler_lambda_exec" {
   name = "handler-lambda"
 
@@ -35,7 +45,6 @@ resource "aws_iam_role" "handler_lambda_exec" {
 }
 POLICY
 }
-
 resource "aws_iam_role_policy_attachment" "handler_lambda_policy" {
   role       = aws_iam_role.handler_lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
@@ -60,19 +69,7 @@ resource "aws_cloudwatch_log_group" "handler_lambda" {
   name = "/aws/lambda/${aws_lambda_function.handler.function_name}"
 }
 
-# use path.module
-data "archive_file" "handler" {
-  type        = "zip"
-  source_dir  = var.handler_dir
-  output_path = "handler.zip"
-}
-
-resource "aws_s3_object" "handler" {
-  bucket  = aws_s3_bucket.lambda_bucket.id
-  key    = "handler.zip"
-  source = data.archive_file.handler.output_path
-  etag = filemd5(data.archive_file.handler.output_path)
-}
+# AWS API Gateway
 resource "aws_apigatewayv2_api" "main" {
   name          = "main"
   protocol_type = "HTTP"

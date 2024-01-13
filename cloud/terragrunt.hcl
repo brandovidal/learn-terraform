@@ -9,7 +9,7 @@ remote_state {
     if_exists = "overwrite_terragrunt"
   }
   config = {
-    bucket  = "terraform-codely-tf-states"
+    bucket  = "serverless-deploys-tf-states"
     key     = "${path_relative_to_include()}/terraform.tfstate"
     region  = "us-east-1"
     encrypt = true

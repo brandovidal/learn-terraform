@@ -1,6 +1,4 @@
-import { Handler } from 'aws-lambda'
-
-export async function handler (event: Handler) {
+export async function handler () {
   const data = { message: 'Your function executed successfully!' }
 
   return {

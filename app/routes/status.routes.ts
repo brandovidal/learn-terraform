@@ -3,11 +3,18 @@ import httpStatus from 'http-status'
 
 function register (router: Router) {
   router.get('/status', (_req: Request, res: Response) => {
-    res.status(httpStatus.OK).send({
+    const body = {
       success: true,
-      statusCode: 200,
       message: 'Health check retrieved successfully',
       data: []
+    }
+
+    res.status(httpStatus.OK).send({
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify(body, null, 2)
     })
   })
 }

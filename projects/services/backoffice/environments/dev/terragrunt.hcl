@@ -7,7 +7,7 @@ terraform {
 }
 
 inputs = {
-  bucket_name    = "serverless-deploys"
+  bucket_name    = "brandovidal-serverless-deploys"
   lambda_role    = "serverless-backoffice-role"
-  handler_dir    = "${path_relative_from_include()}/../../../../dist"
+  handler_dir    = "${path_relative_from_include()}/../../../../tmp"
 }

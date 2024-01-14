@@ -12,5 +12,6 @@ terraform.tfstate.backup
 
 node_modules/
 
-build/
+tmp/
 dist/
+handler.zip

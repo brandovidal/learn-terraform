@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express'
 import express, { Router, json, urlencoded } from 'express'
 
-// import helmet from 'helmet'
 import type * as http from 'http'
 
 import cors from 'cors'
@@ -22,11 +21,6 @@ export class Server {
 
     this.express.use(json())
     this.express.use(urlencoded({ extended: true, limit: '10kb' }))
-
-    // this.express.use(helmet.xssFilter())
-    // this.express.use(helmet.noSniff())
-    // this.express.use(helmet.hidePoweredBy())
-    // this.express.use(helmet.frameguard({ action: 'deny' }))
 
     this.express.use(cors({ origin: '*', optionsSuccessStatus: 200 }))
     this.express.use(morgan('combined'))
@@ -49,7 +43,7 @@ export class Server {
   }
 
   async listen (): Promise<void> {
-    await new Promise(resolve => {
+    return await new Promise(resolve => {
       this.httpServer = this.express.listen(this.port, () => {
         console.log(
           `  Node Backend App is running at http://localhost:${
@@ -58,9 +52,13 @@ export class Server {
         )
         console.log('  Press CTRL-C to stop\n')
 
-        resolve(1)
+        resolve()
       })
     })
+  }
+
+  getServer () {
+    return this.express
   }
 
   getHTTPServer () {

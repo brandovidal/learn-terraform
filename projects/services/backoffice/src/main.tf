@@ -12,7 +12,6 @@ resource "aws_s3_bucket_public_access_block" "lambda_bucket" {
   restrict_public_buckets = true
 }
 
-# use path.module
 data "archive_file" "handler" {
   type        = "zip"
   source_dir  = var.handler_dir

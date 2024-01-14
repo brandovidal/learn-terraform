@@ -5,11 +5,10 @@ function register (router: Router) {
   router.get('/status', (_req: Request, res: Response) => {
     const body = {
       success: true,
-      message: 'Health check retrieved successfully',
-      data: []
+      message: 'Health check retrieved successfully'
     }
 
-    res.status(httpStatus.OK).send({
+    return res.status(httpStatus.OK).send({
       statusCode: 200,
       headers: {
         'Access-Control-Allow-Origin': '*'

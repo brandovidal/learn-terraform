@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node dist/start.js",
     "dev": "ts-node-dev --no-notify --respawn --transpile-only app/start.ts",
-    "prebuild": "tsc",
-    "build": "bash build.sh"
+    "build": "tsc && bash build.sh"
   },
   "keywords": [],
   "author": "",

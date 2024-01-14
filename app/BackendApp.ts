@@ -10,6 +10,10 @@ export class BackendApp {
     await this.server.listen()
   }
 
+  get getServer () {
+    return this.server?.getServer()
+  }
+
   get httpServer () {
     return this.server?.getHTTPServer()
   }

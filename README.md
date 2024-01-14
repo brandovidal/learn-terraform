@@ -16,7 +16,7 @@
 aws configure terraform-user
 ```
 
-- Init project, ubicate in `cloud/` folder
+- Init project, ubicate in `projects/` folder
 
 ```bash
 terragrunt init

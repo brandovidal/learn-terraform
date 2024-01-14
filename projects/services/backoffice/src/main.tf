@@ -20,7 +20,7 @@ data "archive_file" "handler" {
 
 resource "aws_s3_object" "handler" {
   bucket = aws_s3_bucket.lambda_bucket.id
-  key    = "${var.env}/handler.zip"
+  key    = "${var.env}/${var.bucket_name}/handler.zip"
   source = data.archive_file.handler.output_path
   etag   = filemd5(data.archive_file.handler.output_path)
 }
@@ -51,7 +51,7 @@ resource "aws_iam_role_policy_attachment" "handler_lambda_policy" {
 }
 
 resource "aws_lambda_function" "handler_api" {
-  function_name = var.function_name
+  function_name = "${var.function_name}-${var.env}"
   # function_name = "handler"
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id

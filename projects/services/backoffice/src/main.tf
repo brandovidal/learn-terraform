@@ -26,8 +26,9 @@ resource "aws_s3_object" "handler" {
 }
 
 #  AWS Lambda
-resource "aws_iam_role" "handler_lambda_exec" {
-  name = "handler-lambda"
+resource "aws_iam_role" "handler_lambda_role" {
+  name = var.lambda_role
+  # name = "handler-lambda"
 
   assume_role_policy = <<POLICY
 {
@@ -45,12 +46,13 @@ resource "aws_iam_role" "handler_lambda_exec" {
 POLICY
 }
 resource "aws_iam_role_policy_attachment" "handler_lambda_policy" {
-  role       = aws_iam_role.handler_lambda_exec.name
+  role       = aws_iam_role.handler_lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_lambda_function" "handler" {
-  function_name = "handler"
+resource "aws_lambda_function" "handler_api" {
+  function_name = var.function_name
+  # function_name = "handler"
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.handler.key
@@ -60,17 +62,18 @@ resource "aws_lambda_function" "handler" {
 
   source_code_hash = data.archive_file.handler.output_base64sha256
 
-  role = aws_iam_role.handler_lambda_exec.arn
+  role = aws_iam_role.handler_lambda_role.arn
 }
 
 
 resource "aws_cloudwatch_log_group" "handler_lambda" {
-  name = "/aws/lambda/${aws_lambda_function.handler.function_name}"
+  name = "/aws/lambda/${aws_lambda_function.handler_api.function_name}-${var.env}"
 }
 
 # AWS API Gateway
-resource "aws_apigatewayv2_api" "main" {
-  name          = "main"
+resource "aws_apigatewayv2_api" "serverless_api" {
+  name          = var.apigateway_name
+  # name          = "main"
   protocol_type = "HTTP"
 
   cors_configuration {
@@ -80,14 +83,14 @@ resource "aws_apigatewayv2_api" "main" {
   }
 }
 
-resource "aws_apigatewayv2_stage" "dev" {
-  api_id = aws_apigatewayv2_api.main.id
+resource "aws_apigatewayv2_stage" "serverless_stage" {
+  api_id = aws_apigatewayv2_api.serverless_api.id
 
-  name        = "dev"
+  name        = "$default"
   auto_deploy = true
 
   access_log_settings {
-    destination_arn = aws_cloudwatch_log_group.main_api_gw.arn
+    destination_arn = aws_cloudwatch_log_group.serverless_api_log.arn
 
     format = jsonencode({
       requestId               = "$context.requestId"
@@ -105,21 +108,22 @@ resource "aws_apigatewayv2_stage" "dev" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "main_api_gw" {
-  name = "/aws/api-gw/${aws_apigatewayv2_api.main.name}"
+resource "aws_cloudwatch_log_group" "serverless_api_log" {
+  name = "/aws/api-gw/${aws_apigatewayv2_api.serverless_api.name}-${var.env}"
 
   retention_in_days = 30
 }
 resource "aws_apigatewayv2_integration" "lambda_handler" {
-  api_id = aws_apigatewayv2_api.main.id
+  api_id = aws_apigatewayv2_api.serverless_api.id
 
   integration_type = "AWS_PROXY"
-  integration_uri  = aws_lambda_function.handler.invoke_arn
+  # integration_method = "ANY"
+  integration_uri  = aws_lambda_function.handler_api.invoke_arn
   payload_format_version = "2.0"
 }
 
 resource "aws_apigatewayv2_route" "post_handler" {
-  api_id    = aws_apigatewayv2_api.main.id
+  api_id    = aws_apigatewayv2_api.serverless_api.id
   route_key = "$default"
 
   target = "integrations/${aws_apigatewayv2_integration.lambda_handler.id}"
@@ -128,8 +132,8 @@ resource "aws_apigatewayv2_route" "post_handler" {
 resource "aws_lambda_permission" "api_gw" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.handler.function_name
+  function_name = aws_lambda_function.handler_api.function_name
   principal     = "apigateway.amazonaws.com"
 
-  source_arn = "${aws_apigatewayv2_api.main.execution_arn}/*"
+  source_arn = "${aws_apigatewayv2_api.serverless_api.execution_arn}/*"
 }

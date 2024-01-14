@@ -1,7 +1,6 @@
-console.log('hello world init')
+import { Handler } from 'aws-lambda'
 
-export async function handler (event) {
-  console.log({ event })
+export async function handler (event: Handler) {
   const data = { message: 'Your function executed successfully!' }
 
   return {

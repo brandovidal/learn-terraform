@@ -9,3 +9,8 @@ terraform.tfstate.backup
 
 *.terragrunt-cache
 *backend.tf
+
+node_modules/
+
+build/
+dist/

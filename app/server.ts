@@ -22,7 +22,7 @@ export class Server {
     this.express.use(json())
     this.express.use(urlencoded({ extended: true, limit: '10kb' }))
 
-    this.express.use(cors({ origin: '*', optionsSuccessStatus: 200 }))
+    this.express.use(cors({ origin: '*', optionsSuccessStatus: httpStatus.OK }))
     this.express.use(morgan('combined'))
 
     this.express.use(express.static('public'))
@@ -57,7 +57,7 @@ export class Server {
     })
   }
 
-  getServer () {
+  expressApp () {
     return this.express
   }
 

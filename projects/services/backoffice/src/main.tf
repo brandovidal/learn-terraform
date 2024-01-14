@@ -56,7 +56,7 @@ resource "aws_lambda_function" "handler" {
   s3_key    = aws_s3_object.handler.key
 
   runtime = "nodejs18.x"
-  handler = "start.handler"
+  handler = "lambda.handler"
 
   source_code_hash = data.archive_file.handler.output_base64sha256
 
@@ -72,6 +72,12 @@ resource "aws_cloudwatch_log_group" "handler_lambda" {
 resource "aws_apigatewayv2_api" "main" {
   name          = "main"
   protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_origins = ["*"]
+    allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allow_headers = ["*"]
+  }
 }
 
 resource "aws_apigatewayv2_stage" "dev" {
@@ -108,8 +114,8 @@ resource "aws_apigatewayv2_integration" "lambda_handler" {
   api_id = aws_apigatewayv2_api.main.id
 
   integration_type = "AWS_PROXY"
-  # integration_method = "ANY"
   integration_uri  = aws_lambda_function.handler.invoke_arn
+  payload_format_version = "2.0"
 }
 
 resource "aws_apigatewayv2_route" "post_handler" {
@@ -125,5 +131,5 @@ resource "aws_lambda_permission" "api_gw" {
   function_name = aws_lambda_function.handler.function_name
   principal     = "apigateway.amazonaws.com"
 
-  source_arn = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
+  source_arn = "${aws_apigatewayv2_api.main.execution_arn}/*"
 }

@@ -43,6 +43,6 @@
     "resolveJsonModule": true,
     "skipLibCheck": true
   },
-  "include": ["app"],
+  "include": ["app", "lambda.ts"],
   "exclude": ["node_modules/", "dist/"]
 }

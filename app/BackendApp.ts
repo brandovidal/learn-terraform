@@ -3,15 +3,25 @@ import { Server } from './server'
 export class BackendApp {
   server!: Server
 
-  async start () {
-    const port = process.env.PORT || "5000"
+  async bootstrap () {
+    const port = process.env.PORT || '5000'
     this.server = new Server(port)
-
-    await this.server.listen()
   }
 
-  get getServer () {
-    return this.server?.getServer()
+  async start () {
+    await this.bootstrap()
+
+    const server = this.server
+
+    if (!server) {
+      throw new Error('Server not bootstrapped.')
+    }
+
+    await server.listen()
+  }
+
+  get serverApp () {
+    return this.server?.expressApp()
   }
 
   get httpServer () {

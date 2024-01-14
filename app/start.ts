@@ -1,19 +1,9 @@
-import serverless from 'serverless-http'
-
 import { BackendApp } from './BackendApp'
 
-let application
-let handler
-
 try {
-  application = new BackendApp()
-  void application.start()
-
-  handler = serverless(application.getServer)
-
-} catch (e) {
-  console.log(e)
-  process.exit(1)
+  void new BackendApp().start().catch(handleError)
+} catch (err) {
+  handleError(err)
 }
 
 process.on('uncaughtException', err => {
@@ -21,5 +11,20 @@ process.on('uncaughtException', err => {
   process.exit(1)
 })
 
-console.log({ server: handler.length, handler })
-export { handler }
+process.on('uncaughtException', err => {
+  console.log('uncaughtException', err)
+  process.exit(1)
+})
+
+process.on('SIGINT', async () => {
+  process.exit(0)
+})
+
+process.on('SIGTERM', async () => {
+  process.exit(0)
+})
+
+function handleError (error: any) {
+  console.log(error)
+  process.exit(1)
+}

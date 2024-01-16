@@ -1,24 +1,36 @@
-# data "aws_route53_zone" "main" {
-#   name = "brandovidal.dev"
-#   private_zone = false
+locals {
+  subdomain = "api"
+  record_name = "${local.subdomain}.brandovidal.dev"
+}
+data "aws_route53_zone" "main" {
+  name = local.record_name
+  private_zone = false
 
-#   tags = {
-#     Environment = var.env
-#   }
-# }
-# resource "aws_route53_record" "custom_domain_record" {
-#   name = "api" # The subdomain (api.brandovidal.dev)
-#   type = "CNAME"
-#   ttl = "300" # TTL in seconds
+  tags = {
+    Environment = var.env_name
+    Name        = local.record_name
+  }
+}
+data "terraform_remote_state" "remote_s3" {
+  backend = "s3"
+  config = {
+    bucket = var.backend_name
+    key    = "dev/services/backoffice/networking/api-gateway/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+resource "aws_route53_record" "custom_domain_record" {
+  name = local.subdomain
+  type = "CNAME"
+  ttl = "300"
 
-#   records = ["${aws_apigatewayv2_api.serverless_api.id}.execute-api.us-east-1.amazonaws.com"]
+  records = ["${data.terraform_remote_state.remote_s3.outputs.base_url}.execute-api.us-east-1.amazonaws.com"]
 
-#   zone_id = data.aws_route53_zone.main.zone_id
-# }
+  zone_id = data.aws_route53_zone.main.zone_id
+}
 
-# resource "aws_acm_certificate" "my_api_cert" {
-#   domain_name = "api.brandovidal.dev"
-#   # provider = aws.aws_useast1 # needs to be in US East 1 region
-#   subject_alternative_names = ["api.brandovidal.dev"] # Your custom domain
-#   validation_method = "DNS"
-# }
+resource "aws_acm_certificate" "api_cert" {
+  domain_name = local.record_name
+  subject_alternative_names = [local.record_name]
+  validation_method = "DNS"
+}

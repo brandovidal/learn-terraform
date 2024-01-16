@@ -8,7 +8,7 @@
     "dev": "ts-node-dev --no-notify --respawn --transpile-only app/start.ts",
     "build:app": "tsc",
     "build": "pnpm build:app && bash build.sh",
-    "clean": "rimraf *.provider.tf"
+    "clean:build": "rimraf dist/ build/"
   },
   "keywords": [],
   "author": "",

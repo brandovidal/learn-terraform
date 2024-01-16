@@ -35,7 +35,6 @@ resource "aws_lambda_function" "handler_api" {
   function_name = "${var.function_name}-${var.env}"
 
   s3_bucket = var.bucket_name
-  # s3_key    = aws_s3_object.handler.key
   s3_key    = data.terraform_remote_state.remote_s3.outputs.bucket_key
 
   runtime = "nodejs18.x"
@@ -44,14 +43,13 @@ resource "aws_lambda_function" "handler_api" {
   source_code_hash = data.terraform_remote_state.remote_s3.outputs.source_code_hash
 
   role = aws_iam_role.handler_lambda_role.arn
+  
+  tags = {
+    environment = var.env_name
+    name        = var.function_name
+  }
 }
-
 
 resource "aws_cloudwatch_log_group" "handler_lambda" {
   name = "/aws/lambda/${aws_lambda_function.handler_api.function_name}-${var.env}"
-}
-
-# // tfstate output
-output "lambda_arn" {
-  value = aws_lambda_function.handler_api.arn
 }

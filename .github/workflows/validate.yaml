@@ -19,7 +19,7 @@ jobs:
   terraform:
     name: 'Terraform Validate'
     runs-on: ubuntu-latest
-    environment: production
+    environment: dev
 
     defaults:
       run:

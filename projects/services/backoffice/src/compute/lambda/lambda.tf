@@ -1,7 +1,6 @@
 #  AWS Lambda
 resource "aws_iam_role" "handler_lambda_role" {
   name = var.lambda_role
-  # name = "handler-lambda"
 
   assume_role_policy = <<POLICY
 {
@@ -25,7 +24,6 @@ resource "aws_iam_role_policy_attachment" "handler_lambda_policy" {
 
 resource "aws_lambda_function" "handler_api" {
   function_name = "${var.function_name}-${var.env}"
-  # function_name = "handler"
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.handler.key

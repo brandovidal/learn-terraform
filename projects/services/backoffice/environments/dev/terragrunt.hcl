@@ -8,7 +8,7 @@ terraform {
 
 locals {
   project_name = "backoffice"
-  env = "dev"
+  env          = "dev"
 }
 
 inputs = {

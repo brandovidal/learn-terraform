@@ -1,4 +1,9 @@
 #  AWS Lambda
+locals {
+  function_name = "${var.function_name}-${var.env}"
+  cloudwatch_log_group_name = "/aws/lambda/${local.function_name}"
+}
+
 resource "aws_iam_role" "handler_lambda_role" {
   name = var.lambda_role
 
@@ -17,12 +22,12 @@ resource "aws_iam_role" "handler_lambda_role" {
 }
 POLICY
 }
+
 resource "aws_iam_role_policy_attachment" "handler_lambda_policy" {
   role       = aws_iam_role.handler_lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-// get s3 bucket_name from s3 tfstate
 data "terraform_remote_state" "remote_s3" {
   backend = "s3"
   config = {
@@ -31,8 +36,9 @@ data "terraform_remote_state" "remote_s3" {
     region = "us-east-1"
   }
 }
+
 resource "aws_lambda_function" "handler_api" {
-  function_name = "${var.function_name}-${var.env}"
+  function_name = local.function_name
 
   s3_bucket = var.bucket_name
   s3_key    = data.terraform_remote_state.remote_s3.outputs.bucket_key
@@ -51,5 +57,10 @@ resource "aws_lambda_function" "handler_api" {
 }
 
 resource "aws_cloudwatch_log_group" "handler_lambda" {
-  name = "/aws/lambda/${aws_lambda_function.handler_api.function_name}-${var.env}"
+  name = local.cloudwatch_log_group_name  
+  retention_in_days = 30
+  tags = {
+    environment = var.env_name
+    name        = local.cloudwatch_log_group_name
+  }
 }

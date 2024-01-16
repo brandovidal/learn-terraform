@@ -1,2 +1,2 @@
-env="dev"
-env_name="Dev"
+env      = "dev"
+env_name = "Dev"

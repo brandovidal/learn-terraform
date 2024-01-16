@@ -1,11 +1,20 @@
+locals {
+  bucket_key = "${var.env}/${var.folder_name}/handler.zip"
+}
+
 data "archive_file" "handler" {
   type        = "zip"
   source_dir  = var.handler_dir
   output_path = "handler.zip"
 }
 
-locals {
-  bucket_key = "${var.env}/${var.folder_name}/handler.zip"
+data "terraform_remote_state" "remote_s3" {
+  backend = "s3"
+  config = {
+    bucket = var.backend_name
+    key    = "dev/base/storage/s3/terraform.tfstate"
+    region = "us-east-1"
+  }
 }
 
 resource "aws_s3_object" "handler" {
@@ -18,4 +27,6 @@ resource "aws_s3_object" "handler" {
     environment = var.env_name
     name        = var.folder_name
   }
+
+  depends_on = [ data.terraform_remote_state.remote_s3]
 }

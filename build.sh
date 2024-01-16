@@ -1,16 +1,15 @@
 # !/bin/bash
 
-rm -rf build/ handler.zip
+rm -rf build/ handler.zip projects/build/
 
-mkdir -p build
+cp -r dist/ build/
 
-cp -r dist/* ./build
-cp package.json ./build
+# mkdir -p build
 
 cd build/
 npm install --omit=dev --ignore-scripts --production
-# zip -r ../handler.zip .
+zip -r ../handler.zip .
 cd ..
 
-cp -r build/ projects/
-rm -rf build/
+cp -r build/ projects/build/
+rm -rf build/ handler.zip

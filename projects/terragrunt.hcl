@@ -1,3 +1,17 @@
+locals {
+  project_name = "backoffice"
+}
+
+inputs = {
+  backend_name    = "serverless-deploys-tf-states"
+  bucket_name     = "brandovidal-serverless-deploys"
+  folder_name     = "serverless-${local.project_name}"
+  lambda_role     = "lambda-${local.project_name}-role"
+  function_name   = "lambda-${local.project_name}-api"
+  apigateway_name = "serverless-${local.project_name}-api"
+  handler_dir     = "${path_relative_from_include()}/build"
+}
+
 terraform {
   extra_arguments "common_vars" {
     commands = get_terraform_commands_that_need_vars()
@@ -6,10 +20,6 @@ terraform {
       "${find_in_parent_folders("env.tfvars", "skip-env-if-does-not-exist")}"
     ]
   }
-}
-
-inputs = {
-  env = substr(path_relative_to_include(), -3, -1)
 }
 
 generate "provider" {
@@ -30,7 +40,7 @@ terraform {
 }
 provider "aws" {
   profile = "terraform-user"
-  region = "eu-west-1"
+  region  = "us-east-1"
 }
 EOF
 }

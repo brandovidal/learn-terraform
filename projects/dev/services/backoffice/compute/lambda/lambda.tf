@@ -22,16 +22,26 @@ resource "aws_iam_role_policy_attachment" "handler_lambda_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+// get s3 bucket_name from s3 tfstate
+data "terraform_remote_state" "remote_s3" {
+  backend = "s3"
+  config = {
+    bucket = var.backend_name
+    key    = "dev/services/backoffice/storage/s3/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
 resource "aws_lambda_function" "handler_api" {
   function_name = "${var.function_name}-${var.env}"
 
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
-  s3_key    = aws_s3_object.handler.key
+  s3_bucket = var.bucket_name
+  # s3_key    = aws_s3_object.handler.key
+  s3_key    = data.terraform_remote_state.remote_s3.outputs.bucket_key
 
   runtime = "nodejs18.x"
   handler = "lambda.handler"
 
-  source_code_hash = data.archive_file.handler.output_base64sha256
+  source_code_hash = data.terraform_remote_state.remote_s3.outputs.source_code_hash
 
   role = aws_iam_role.handler_lambda_role.arn
 }

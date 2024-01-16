@@ -18,9 +18,30 @@ data "archive_file" "handler" {
   output_path = "handler.zip"
 }
 
+locals {
+  bucket_key = "${var.env}/${var.folder_name}/handler.zip"
+}
+
 resource "aws_s3_object" "handler" {
   bucket = aws_s3_bucket.lambda_bucket.id
-  key    = "${var.env}/${var.bucket_name}/handler.zip"
+  key    = local.bucket_key
   source = data.archive_file.handler.output_path
   etag   = filemd5(data.archive_file.handler.output_path)
+
+  tags = {
+    environment = var.env_name
+    name        = var.folder_name
+  }
+}
+
+output "bucket_id" {
+  value = aws_s3_bucket.lambda_bucket.id
+}
+
+output "bucket_key" {
+  value = local.bucket_key
+}
+
+output "source_code_hash" {
+  value = data.archive_file.handler.output_base64sha256
 }

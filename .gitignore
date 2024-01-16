@@ -16,7 +16,7 @@ node_modules/
 tmp/
 **/tmp/
 build/
-**/build/
+!**/build/
 dist/
 
 handler.zip

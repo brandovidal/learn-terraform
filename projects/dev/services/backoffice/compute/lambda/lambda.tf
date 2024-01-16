@@ -1,6 +1,6 @@
 #  AWS Lambda
 locals {
-  function_name = "${var.function_name}-${var.env}"
+  function_name             = "${var.function_name}-${var.env}"
   cloudwatch_log_group_name = "/aws/lambda/${local.function_name}"
 }
 
@@ -49,7 +49,7 @@ resource "aws_lambda_function" "handler_api" {
   source_code_hash = data.terraform_remote_state.remote_s3.outputs.source_code_hash
 
   role = aws_iam_role.handler_lambda_role.arn
-  
+
   tags = {
     environment = var.env_name
     name        = var.function_name
@@ -57,7 +57,7 @@ resource "aws_lambda_function" "handler_api" {
 }
 
 resource "aws_cloudwatch_log_group" "handler_lambda" {
-  name = local.cloudwatch_log_group_name  
+  name              = local.cloudwatch_log_group_name
   retention_in_days = 30
   tags = {
     environment = var.env_name

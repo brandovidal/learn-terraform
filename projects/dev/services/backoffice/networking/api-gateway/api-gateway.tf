@@ -1,10 +1,10 @@
 locals {
-  apigateway_name = "${var.apigateway_name}-${var.env}"
-  function_name = "${var.function_name}-${var.env}"
+  apigateway_name           = "${var.apigateway_name}-${var.env}"
+  function_name             = "${var.function_name}-${var.env}"
   cloudwatch_log_group_name = "/aws/api-gw/${local.apigateway_name}"
 }
 resource "aws_apigatewayv2_api" "serverless_api" {
-  name = local.apigateway_name
+  name          = local.apigateway_name
   protocol_type = "HTTP"
 
   cors_configuration {
@@ -12,7 +12,7 @@ resource "aws_apigatewayv2_api" "serverless_api" {
     allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     allow_headers = ["*"]
   }
-  
+
   tags = {
     environment = var.env_name
     name        = var.apigateway_name
@@ -45,7 +45,7 @@ resource "aws_apigatewayv2_stage" "serverless_stage" {
 }
 
 resource "aws_cloudwatch_log_group" "serverless_api_log" {
-  name = local.cloudwatch_log_group_name
+  name              = local.cloudwatch_log_group_name
   retention_in_days = 30
   tags = {
     environment = var.env_name

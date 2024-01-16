@@ -28,5 +28,5 @@ resource "aws_s3_object" "handler" {
     name        = var.folder_name
   }
 
-  depends_on = [ data.terraform_remote_state.remote_s3]
+  depends_on = [data.terraform_remote_state.remote_s3]
 }

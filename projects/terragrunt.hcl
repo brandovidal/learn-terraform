@@ -56,5 +56,6 @@ remote_state {
     key     = "${path_relative_to_include()}/terraform.tfstate"
     region  = "us-east-1"
     encrypt = true
+    disable_bucket_update = true
   }
 }

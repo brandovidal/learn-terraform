@@ -64,3 +64,16 @@ resource "aws_cloudwatch_log_group" "handler_lambda" {
     name        = local.cloudwatch_log_group_name
   }
 }
+
+resource "aws_lambda_function_url" "handler_api_url" {
+  function_name      = aws_lambda_function.handler_api.function_name
+  authorization_type = "NONE"
+  cors {
+    allow_credentials = true
+    allow_origins     = ["*"]
+    allow_methods     = ["*"]
+    allow_headers     = ["date", "keep-alive"]
+    expose_headers    = ["keep-alive", "date"]
+    max_age           = 86400
+  }
+}
